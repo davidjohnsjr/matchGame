@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>	
+	<style>
+	div#memory_board{
+		background:#CCC;
+		border:#999 1px solid;
+		width:800px;
+		height:600px;
+		padding:20px;
+		margin:0px auto;
+	}
+	div#memory_board > div{
+		background-color: green;
+		border:#000 1px solid;
+		width:110px;
+		height:160px;
+		cursor:pointer;
+		float: left;
+		margin: 5px;
+		background: url('card.PNG') no-repeat;
+		background-size: 110px 160px;
+		text-align: center;
+		font-size: 50px;
+
+	}
+
+
+
+</style>
+
+<script>
+// numbers, letters, symbols, emojis - what do you want?
+var memory_array = ['A','A','B','B','C','C','🐶','🐺','🐶','🐺','😋','😋','👾','👾','🤥','🤥','🙀','🙀']; 
+//var memory_array = [1,1,2,2];
+
+// the first card's number, letter or emoji selected goes into memory_values []
+// it's id, like "tile_1" goes into memory_tile_ids []
+var memory_values = [];
+var memory_tile_ids = [];
+var tiles_flipped = 0;
+
+// shuffle array of tiles
+Array.prototype.memory_tile_shuffle = function(){
+	var i = this.length, j, temp;
+	while(--i > 0){
+		j = Math.floor(Math.random() * (i+1));
+		temp = this[j];
+		this[j] = this[i];
+		this[i] = temp;
+	}
+}
+function newBoard(){
+	tiles_flipped = 0;
+	var output = '';
+	memory_array.memory_tile_shuffle();
+	for(var i = 0; i < memory_array.length; i++){
+		output += `<div id="tile_${i}" onclick="memoryFlipTile(this,'${memory_array[i]}')"></div>`;	
+		
+	}
+	document.getElementById('memory_board').innerHTML = output;
+}
+function memoryFlipTile(tile,val){
+
+	if(tile.innerHTML == "" && memory_values.length < 2){
+		
+		turnCard(tile, val);
+		if(memory_values.length == 0){
+			memory_values.push(val);
+			memory_tile_ids.push(tile.id);	
+		} 
+
+		else if(memory_values.length == 1){
+			memory_values.push(val);
+			memory_tile_ids.push(tile.id);
+
+			if(memory_values[0] == memory_values[1]){
+				tiles_flipped += 2;
+				// Clear both temporary arrays
+				memory_values = [];
+				memory_tile_ids = [];
+				// Check to see if the whole board is cleared
+				if(tiles_flipped == memory_array.length){
+					alert("Board cleared... generating new board");
+					document.getElementById('memory_board').innerHTML = "";
+					newBoard();
+				}
+			} 
+			else {
+				function flip2Back(){
+					// Flip the 2 tiles back over
+					var tile_1 = document.getElementById(memory_tile_ids[0]);
+					//frontSide=1;
+					//turnCard(tile_1,val);
+					var tile_2 = document.getElementById(memory_tile_ids[1]);
+					tile_1.style.background = 'url("card.PNG") no-repeat'; 
+					tile_1.style.backgroundSize = "110px 160px";
+					tile_1.innerHTML = "";
+					tile_2.style.background = 'url("card.PNG") no-repeat';
+					tile_2.style.backgroundSize = "110px 160px";
+					tile_2.innerHTML = "";
+				    // Clear both temporary arrays
+				    memory_values = [];
+				    memory_tile_ids = [];
+			}
+			setTimeout(flip2Back, 1500);
+	}
+}
+}
+}
+var CARDWIDTH = 110;
+
+function turnCard(elem,val) {
+
+	$(elem).animate({
+		marginLeft: CARDWIDTH / 2,
+		marginRight: CARDWIDTH / 1.7,
+		width: 0
+	}, function () {
+
+		$(this).animate({
+			width: CARDWIDTH,
+			marginLeft: 5,
+			marginRight: 5,
+		})
+
+		elem.style.background = 'lightblue';
+		elem.innerHTML = val;
+
+	})
+}
+</script>
+
+</head>
+<body>
+	<div id="memory_board"></div>
+	<script>newBoard();</script>
+</body>
+</html>
